@@ -1,3 +1,5 @@
+# Copyright 2019 by Kent Kawashima.  All rights reserved.
+
 import numpy as np
 from .constants import CODON_INTCODE, INTCODE_CODON
 from .read import Sequence, fasta_to_seqobj_list

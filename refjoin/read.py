@@ -1,3 +1,5 @@
+# Copyright 2019 by Kent Kawashima.  All rights reserved.
+
 from collections import namedtuple
 import numpy as np
 
