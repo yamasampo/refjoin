@@ -22,7 +22,7 @@ def fasta_to_seqobj_list(path):
                     name = line[1:]
                 seq = ''
             else:
-                seq += line
+                seq += line.upper()
         if seq:
             seq_list.append(Sequence(name, desc, seq))
     return seq_list
