@@ -1,15 +1,17 @@
 """ Python script calling refjoin to join two sequence alignments. """
 
 import os
-import sys
+import argparse
 import configparser
 from warnings import warn
 from datetime import datetime
 import alignmentrs as al
 from refjoin import __version__
 from refjoin.codon_alignment import refjoin_codon_alignments
+from refjoin.nucleotide_alignment import refjoin_alignments
 
-def join_codon_alignmens(
+def main(
+        mode:str,
         aln_dir1:str, 
         aln_dir2:str,
         file_pair_list_path:str,
@@ -21,14 +23,26 @@ def join_codon_alignmens(
         ):
 
     start = datetime.now().isoformat()
-
+    
+    # Specify in which frame alignments are joined.
+    if mode == 'codon':
+        refjoin_func = refjoin_codon_alignments
+    elif mode == 'nucleotide':
+        refjoin_func = refjoin_alignments
+    else:
+        raise ValueError(f'Unknown mode {mode} is found. '\
+                          'Please specify "codon" or "nucleotide."')
+    
+    # Make output directory
     os.mkdir(out_aln_dir)
     os.mkdir(out_info_dir)
 
+    # Output read control file
     out_ctl_path = os.path.join(out_info_dir, '0.ctl_read.txt')
     not_found_item_path = os.path.join(out_info_dir, '0.notfound_aln_files.list')
     to_control_file(
         out_ctl_path, start, 
+        mode=mode,
         aln_dir1=aln_dir1, 
         aln_dir2=aln_dir2,
         file_pair_list_path=file_pair_list_path,
@@ -39,6 +53,30 @@ def join_codon_alignmens(
         out_info_dir=out_info_dir
     )
 
+    # Call refjoin to all given pairs of alignments
+    apply_refjoin_alignments(
+        refjoin_func,
+        aln_dir1,
+        aln_dir2,
+        file_pair_list_path, 
+        key_seq_prefix1,
+        key_seq_prefix2,
+        out_aln_dir,
+        out_suffix,
+        not_found_item_path
+    )
+
+def apply_refjoin_alignments(
+        refjoin_func,
+        aln_dir1:str,
+        aln_dir2:str,
+        file_pair_list_path:str, 
+        key_seq_prefix1:str,
+        key_seq_prefix2:str,
+        out_aln_dir:str,
+        out_suffix:str,
+        not_found_item_path:str
+        ):
     with open(file_pair_list_path, 'r') as f:
         file_pairs = [
             l[:-1].split('\t') for l in f 
@@ -85,8 +123,8 @@ def join_codon_alignmens(
         ]
         assert len(ref_pos2_list) == 1
         ref_pos2 = ref_pos2_list[0]
-
-        refjoin_codon_alignments(aln_path1, aln_path2, ref_pos1, ref_pos2, out_path)
+        
+        refjoin_func(aln_path1, aln_path2, ref_pos1, ref_pos2, out_path)
 
     flist = to_filelist(out_aln_dir)
     print(len(flist), 'files saved.')
@@ -155,14 +193,22 @@ def read_control_file(control_file):
     return flattened
 
 if __name__ == '__main__':
-    control_file = sys.argv[1]
-    params = read_control_file(control_file)
+    desc = f'refjoin (version {__version__}): Join two alignments by referring '\
+        'to the identical sequences as a template.'
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument(
+        "ctl_file", 
+        help="A path to control file where input arguments are listed."
+    )
+    args = parser.parse_args()
+    params = read_control_file(args.ctl_file)
 
     print('\nINPUT')
     for k, v in params.items():
         print(f'{k}: {v}')
 
-    join_codon_alignmens(
+    main(
+        params['mode'],
         params['aln_dir1'], 
         params['aln_dir2'],
         params['file_pair_list_path'],
