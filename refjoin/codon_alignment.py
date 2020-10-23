@@ -2,7 +2,7 @@
 
 import numpy as np
 from .constants import CODON_INTCODE, INTCODE_CODON
-from .read import Sequence, fasta_to_seqobj_list
+from .read import Sequence, fasta_alignment_to_seqobj_list
 
 def transpose_codon_aln_matrix(seq_list):
     # Assumes all sequences have the same length
@@ -66,8 +66,8 @@ def refjoin_codon_aln_matrices(tmat1, tmat2, ref1_pos, ref2_pos, gap_code=196):
     return np.array(joined_t_seq_list).T
 
 def refjoin_codon_alignments(aln_path1, aln_path2, ref1_pos, ref2_pos, output_path):
-    aln1_seq_list = fasta_to_seqobj_list(aln_path1)
-    aln2_seq_list = fasta_to_seqobj_list(aln_path2)
+    aln1_seq_list = fasta_alignment_to_seqobj_list(aln_path1)
+    aln2_seq_list = fasta_alignment_to_seqobj_list(aln_path2)
     
     tmat1 = transpose_codon_aln_matrix(aln1_seq_list)
     tmat2 = transpose_codon_aln_matrix(aln2_seq_list)
@@ -88,4 +88,4 @@ def refjoin_codon_alignments(aln_path1, aln_path2, ref1_pos, ref2_pos, output_pa
                 print(f'>{s.name}', file=f)
             print(f'{s.sequence}', file=f)
             
-    return fasta_to_seqobj_list(output_path)
+    return fasta_alignment_to_seqobj_list(output_path)

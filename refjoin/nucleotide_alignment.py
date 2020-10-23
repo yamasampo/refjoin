@@ -1,7 +1,7 @@
 # Copyright 2019 by Kent Kawashima.  All rights reserved.
 
 import numpy as np
-from .read import Sequence, fasta_to_seqobj_list
+from .read import Sequence, fasta_alignment_to_seqobj_list
 
 # Create a list of columns with keeping sample orders
 # Transpose sequence matrix
@@ -89,8 +89,8 @@ def refjoin_aln_matrices(
 
 def refjoin_alignments(aln_path1, aln_path2, ref1_pos, ref2_pos, output_path):
     # Read into a list of Sequence objects
-    aln1_seq_list = fasta_to_seqobj_list(aln_path1)
-    aln2_seq_list = fasta_to_seqobj_list(aln_path2)
+    aln1_seq_list = fasta_alignment_to_seqobj_list(aln_path1)
+    aln2_seq_list = fasta_alignment_to_seqobj_list(aln_path2)
     
     # Extract sequence and create transposed alignment sequence matrix
     tmat1 = transpose_aln_matrix(aln1_seq_list)
@@ -117,4 +117,4 @@ def refjoin_alignments(aln_path1, aln_path2, ref1_pos, ref2_pos, output_path):
             print(f'{s.sequence}', file=f)
             
     # Read back the written file into a list of Sequence objects
-    return fasta_to_seqobj_list(output_path)
+    return fasta_alignment_to_seqobj_list(output_path)
