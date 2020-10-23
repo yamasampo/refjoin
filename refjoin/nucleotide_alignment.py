@@ -44,7 +44,7 @@ def refjoin_aln_matrices(
     joined_t_seq_list = []
     
     while c1 < len(tmat1) and c2 < len(tmat2):
-        print(c1, c2)
+        # print(c1, c2)
         # If both ref seqs have gaps, then sample columns are separately appended to the output.
         if gapped1[c1] == '-' and gapped2[c2] == '-':
             joined1 = tmat1[c1].tolist() + ['-']*len2 # for sample 1 column
